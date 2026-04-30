@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 
 interface StockQuote {
   symbol: string;
@@ -8,8 +8,7 @@ interface StockQuote {
 
 export default function TickerTape() {
   const [quotes, setQuotes] = useState<StockQuote[]>([]);
-  const scrollRef = useRef<HTMLDivElement>(null);
-
+  
   useEffect(() => {
     // Dados iniciais mockados (depois vamos substituir pela API real)
     const initialData: StockQuote[] = [

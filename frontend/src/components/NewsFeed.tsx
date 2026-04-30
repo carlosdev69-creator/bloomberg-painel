@@ -68,16 +68,6 @@ export default function NewsFeed() {
     },
   ];
 
-  const getSentimentColor = (sentiment: string) => {
-    switch (sentiment) {
-      case 'positive':
-        return 'text-green-500';
-      case 'negative':
-        return 'text-red-500';
-      default:
-        return 'text-gray-400';
-    }
-  };
 
   const getSentimentDot = (sentiment: string) => {
     switch (sentiment) {
