@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface Stock {
@@ -12,18 +13,54 @@ interface Props {
   selectedStock: string;
 }
 
+const WATCHLIST_SYMBOLS = ['PETR4', 'VALE3', 'ITUB4', 'BBDC4', 'ABEV3', 'WEGE3', 'MGLU3', 'BBAS3'];
+const BRAPI_TOKEN = import.meta.env.VITE_BRAPI_TOKEN;
+
 export default function Watchlist({ onSelectStock, selectedStock }: Props) {
-  // Dados mockados (depois virão do Supabase)
-  const stocks: Stock[] = [
-    { symbol: 'PETR4', name: 'Petrobras PN', price: 36.74, changePercent: 1.43 },
-    { symbol: 'VALE3', name: 'Vale ON', price: 68.92, changePercent: -1.19 },
-    { symbol: 'ITUB4', name: 'Itaú Unibanco PN', price: 34.21, changePercent: 0.44 },
-    { symbol: 'BBDC4', name: 'Bradesco PN', price: 14.87, changePercent: -1.52 },
-    { symbol: 'ABEV3', name: 'Ambev ON', price: 13.45, changePercent: 0.60 },
-    { symbol: 'WEGE3', name: 'WEG ON', price: 38.90, changePercent: 1.75 },
-    { symbol: 'MGLU3', name: 'Magazine Luiza ON', price: 8.92, changePercent: -4.80 },
-    { symbol: 'BBAS3', name: 'Banco do Brasil ON', price: 27.30, changePercent: 0.81 },
-  ];
+  const [stocks, setStocks] = useState<Stock[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchStocks();
+    const interval = setInterval(fetchStocks, 30000);
+    return () => clearInterval(interval);
+  }, []);
+
+  const fetchStocks = async () => {
+    try {
+      const response = await fetch(
+        `https://brapi.dev/api/quote/${WATCHLIST_SYMBOLS.join(',')}?token=${BRAPI_TOKEN}`
+      );
+      
+      if (!response.ok) throw new Error('API error');
+      
+      const data = await response.json();
+      
+      const formatted = data.results.map((stock: any) => ({
+        symbol: stock.symbol,
+        name: stock.longName || stock.shortName || stock.symbol,
+        price: stock.regularMarketPrice,
+        changePercent: stock.regularMarketChangePercent,
+      }));
+      
+      setStocks(formatted);
+    } catch (err) {
+      console.error('Erro ao buscar watchlist:', err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="h-full flex flex-col">
+        <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">
+          Watchlist
+        </h2>
+        <div className="text-gray-500 text-sm">Carregando...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="h-full flex flex-col">
@@ -31,7 +68,7 @@ export default function Watchlist({ onSelectStock, selectedStock }: Props) {
         <h2 className="text-xs font-bold text-gray-400 uppercase tracking-wider">
           Watchlist
         </h2>
-        <span className="text-xs text-gray-500">{stocks.length} ativos</span>
+        <span className="text-xs text-green-500">● Live</span>
       </div>
 
       <div className="flex-1 overflow-y-auto space-y-0.5">
