@@ -7,7 +7,7 @@ interface StockQuote {
   changePercent: number;
 }
 
-const SYMBOLS = ['PETR4', 'VALE3', 'ITUB4', 'BBDC4', 'ABEV3', 'WEGE3', 'MGLU3', 'BBAS3', 'PETR3', 'B3SA3'];
+const SYMBOLS = ['PETR4', 'VALE3', 'ITUB4', 'BBDC4', 'ABEV3', 'WEGE3', 'MGLU3', 'BBAS3'];
 const BRAPI_TOKEN = import.meta.env.VITE_BRAPI_TOKEN;
 
 export default function TickerTape() {
@@ -17,28 +17,29 @@ export default function TickerTape() {
 
   useEffect(() => {
     fetchQuotes();
-    const interval = setInterval(fetchQuotes, 30000); // Atualiza a cada 30 segundos
+    const interval = setInterval(fetchQuotes, 60000); // A cada 1 minuto
     return () => clearInterval(interval);
   }, []);
 
   const fetchQuotes = async () => {
     try {
-      const response = await fetch(
-        `https://brapi.dev/api/quote/${SYMBOLS.join(',')}?token=${BRAPI_TOKEN}`
-      );
-      
-      if (!response.ok) throw new Error('API error');
-      
-      const data = await response.json();
-      
-      const formatted = data.results.map((stock: any) => ({
-        symbol: stock.symbol,
-        price: stock.regularMarketPrice,
-        change: stock.regularMarketChange,
-        changePercent: stock.regularMarketChangePercent,
-      }));
-      
-      setQuotes(formatted);
+      const promises = SYMBOLS.map(async (symbol) => {
+        const response = await fetch(
+          `https://brapi.dev/api/quote/${symbol}?token=${BRAPI_TOKEN}`
+        );
+        if (!response.ok) throw new Error(`Erro em ${symbol}`);
+        const data = await response.json();
+        const stock = data.results[0];
+        return {
+          symbol: stock.symbol,
+          price: stock.regularMarketPrice,
+          change: stock.regularMarketChange,
+          changePercent: stock.regularMarketChangePercent,
+        };
+      });
+
+      const results = await Promise.all(promises);
+      setQuotes(results);
       setError(false);
     } catch (err) {
       console.error('Erro ao buscar cotações:', err);
@@ -76,16 +77,9 @@ export default function TickerTape() {
             <span className="mr-3 text-gray-300">
               R$ {quote.price.toFixed(2)}
             </span>
-            <span
-              className={`font-medium ${
-                quote.change >= 0 ? 'text-green-500' : 'text-red-500'
-              }`}
-            >
+            <span className={`font-medium ${quote.change >= 0 ? 'text-green-500' : 'text-red-500'}`}>
               {quote.change >= 0 ? '▲' : '▼'} R$ {Math.abs(quote.change).toFixed(2)}
-              {' '}
-              <span className="text-xs">
-                ({quote.changePercent >= 0 ? '+' : ''}{quote.changePercent.toFixed(2)}%)
-              </span>
+              {' '}({quote.changePercent >= 0 ? '+' : ''}{quote.changePercent.toFixed(2)}%)
             </span>
           </div>
         ))}
