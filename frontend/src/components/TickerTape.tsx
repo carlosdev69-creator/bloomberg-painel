@@ -7,7 +7,7 @@ interface StockQuote {
   changePercent: number;
 }
 
-const SYMBOLS = ['PETR4', 'VALE3', 'ITUB4', 'BBDC4', 'ABEV3', 'WEGE3', 'MGLU3', 'BBAS3'];
+const SYMBOLS = ['PETR4', 'VALE3', 'ITUB4', 'BBDC4', 'ABEV3', 'WEGE3', 'MGLU3', 'BBAS3', 'POMO4', 'TAEE11', 'CPFE3', 'LEVE3', 'TASA4'];
 const BRAPI_TOKEN = import.meta.env.VITE_BRAPI_TOKEN;
 
 export default function TickerTape() {
