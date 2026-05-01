@@ -13,7 +13,7 @@ interface Props {
   selectedStock: string;
 }
 
-const WATCHLIST_SYMBOLS = ['PETR4', 'VALE3', 'ITUB4', 'BBDC4', 'ABEV3', 'WEGE3', 'MGLU3', 'BBAS3'];
+const WATCHLIST_SYMBOLS = ['PETR4', 'VALE3', 'ITUB4', 'BBDC4', 'ABEV3', 'WEGE3', 'MGLU3', 'BBAS3', 'POMO4'];
 const BRAPI_TOKEN = import.meta.env.VITE_BRAPI_TOKEN;
 
 export default function Watchlist({ onSelectStock, selectedStock }: Props) {
